@@ -45,28 +45,4 @@ export class TasksService {
 
     return result.affected === 1;
   }
-
-  /*getAllTasks(getTasksFilteredDto: GetTasksFilteredDto): Task[] {
-    const { search, status } = getTasksFilteredDto;
-    let tasks = this.tasks;
-    if (search) {
-      tasks = tasks.filter(
-        (task) =>
-          task.title.includes(search) || task.description.includes(search),
-      );
-    }
-
-    if (status) {
-      tasks = tasks.filter((task) => task.status === status);
-    }
-
-    return tasks;
-  }
-
- 
-
-  
-
-  
-*/
 }
