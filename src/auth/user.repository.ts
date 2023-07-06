@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   InternalServerErrorException,
@@ -36,7 +35,7 @@ export class UserRepository extends Repository<User> {
     }
   }
 
-  async signIn(signInDto: SignInDto): Promise<string> {
+  async signIn(signInDto: SignInDto): Promise<User> {
     const { username, email, password } = signInDto;
     const user = await this.createQueryBuilder()
       .andWhere('username = :username', { username })
@@ -44,7 +43,7 @@ export class UserRepository extends Repository<User> {
       .getOne();
 
     if (user && user.validatePassword(password)) {
-      return user.username;
+      return user;
     }
 
     throw new UnauthorizedException('User with given credentials not found!');

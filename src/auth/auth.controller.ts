@@ -13,7 +13,9 @@ export class AuthController {
   }
 
   @Post('/sign-in')
-  signIn(@Body(ValidationPipe) signInDto: SignInDto): Promise<string> {
+  signIn(
+    @Body(ValidationPipe) signInDto: SignInDto,
+  ): Promise<{ token: string }> {
     return this.authService.signIn(signInDto);
   }
 }
