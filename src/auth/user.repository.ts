@@ -1,11 +1,15 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { User } from './user.entity';
 import { SignUpDto } from './dto/sign-up.dto';
+import * as bcrypt from 'bcrypt';
+import { SignInDto } from './dto/sign-in.dto';
 
 @Injectable()
 export class UserRepository extends Repository<User> {
@@ -18,7 +22,9 @@ export class UserRepository extends Repository<User> {
     const user = new User();
     user.username = username;
     user.email = email;
-    user.password = password;
+    user.salt = await bcrypt.genSalt();
+    user.password = await this.hashPassword(password, user.salt);
+
     try {
       await user.save();
     } catch (error) {
@@ -28,5 +34,23 @@ export class UserRepository extends Repository<User> {
         throw new InternalServerErrorException();
       }
     }
+  }
+
+  async signIn(signInDto: SignInDto): Promise<string> {
+    const { username, email, password } = signInDto;
+    const user = await this.createQueryBuilder()
+      .andWhere('username = :username', { username })
+      .orWhere('email = :email', { email })
+      .getOne();
+
+    if (user && user.validatePassword(password)) {
+      return user.username;
+    }
+
+    throw new UnauthorizedException('User with given credentials not found!');
+  }
+
+  private async hashPassword(password: string, salt: string): Promise<string> {
+    return bcrypt.hash(password, salt);
   }
 }
