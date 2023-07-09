@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Logger,
   Param,
   ParseIntPipe,
   Post,
@@ -25,6 +26,8 @@ import { User } from 'src/auth/user.entity';
 @Controller('tasks')
 @UseGuards(AuthGuard())
 export class TasksController {
+  private logger = new Logger('TasksController');
+
   constructor(private tasksService: TasksService) {
     this.tasksService = tasksService;
   }
@@ -34,6 +37,11 @@ export class TasksController {
     @GetUser() user: User,
     @Query(ValidationPipe) getTasksFilteredDto: GetTasksFilteredDto,
   ): Promise<Task[]> {
+    this.logger.verbose(
+      `user ${user.username} is fetching all tasks, filter:${JSON.stringify(
+        getTasksFilteredDto,
+      )}`,
+    );
     return this.tasksService.getAllTasks(getTasksFilteredDto, user);
   }
 
